@@ -116,7 +116,7 @@ function App() {
               <a href="#vehicles" className="text-gray-700 hover:text-green-600 transition-colors">Veículos</a>
               <a href="#about" className="text-gray-700 hover:text-green-600 transition-colors">Sobre</a>
               <a href="#contact" className="text-gray-700 hover:text-green-600 transition-colors">Contato</a>
-              <a href="/login" className="text-gray-700 hover:text-green-600 transition-colors">Admin</a>
+              {/* REMOVIDO: <a href="/login" className="text-gray-700 hover:text-green-600 transition-colors">Admin</a> */}
             </nav>
             <Button className="bg-green-600 hover:bg-green-700 text-white">
               <Phone className="w-4 h-4 mr-2" />
@@ -162,10 +162,10 @@ function App() {
             {vehicles.map((vehicle, index) => (
               <Card key={vehicle.id || index} className="hover-scale cursor-pointer border-2 hover:border-green-500 transition-all duration-300" onClick={() => handleVehicleClick(vehicle.id)}>
                 <div className="relative">
-                  <img 
-                    src={vehicle.images && vehicle.images[0] ? vehicle.images[0] : vehicle.image} 
-                    alt={vehicle.name} 
-                    className="w-full h-48 object-cover rounded-t-lg" 
+                  <img
+                    src={vehicle.images && vehicle.images[0] ? vehicle.images[0] : vehicle.image}
+                    alt={vehicle.name}
+                    className="w-full h-48 object-cover rounded-t-lg"
                   />
                   <Badge className="absolute top-4 right-4 bg-green-600 text-white">{vehicle.year}</Badge>
                 </div>
@@ -306,10 +306,12 @@ function App() {
             <div>
               <h5 className="text-lg font-semibold mb-4">Empresa</h5>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-green-400 transition-colors">Sobre Nós</a></li>
+                <li><a href="#" className className="hover:text-green-400 transition-colors">Sobre Nós</a></li>
                 <li><a href="#" className="hover:text-green-400 transition-colors">Nossa Equipe</a></li>
                 <li><a href="#" className="hover:text-green-400 transition-colors">Carreiras</a></li>
                 <li><a href="#" className="hover:text-green-400 transition-colors">Blog</a></li>
+                {/* ADICIONADO: Link para Área Administrativa no rodapé */}
+                <li><a href="/login" className="hover:text-green-400 transition-colors">Área Administrativa</a></li>
               </ul>
             </div>
             <div>
@@ -331,4 +333,3 @@ function App() {
 }
 
 export default App
-
