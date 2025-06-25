@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
-import { ArrowLeft, Phone, Mail, Car, Fuel, Calendar, Gauge, Cog, Shield, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, Car, Fuel, Calendar, Gauge, Cog, Shield, CheckCircle, MessageCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import logo from '../assets/logo.jpg'
 import civic2020 from '../assets/civic-2020.jpg'
@@ -20,14 +20,34 @@ function VehicleDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Dados estáticos como fallback
+  // Funções de formatação (reutilizadas do App.jsx)
+  const formatPrice = (price) => {
+    if (price === undefined || price === null) return "R$ 0,00";
+    const numericPrice = parseFloat(String(price).replace(/[R$\s.]/g, '').replace(',', '.'));
+    if (isNaN(numericPrice)) return "R$ N/A";
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericPrice);
+  };
+
+  const formatMileage = (mileage) => {
+    if (mileage === undefined || mileage === null) return "0 km";
+    const numericMileage = parseFloat(String(mileage).replace(/[km\s.]/g, ''));
+    if (isNaN(numericMileage)) return "N/A km";
+    return new Intl.NumberFormat('pt-BR').format(numericMileage) + " km";
+  };
+
+  // Dados estáticos como fallback (preços e milhagens como números)
   const fallbackVehiclesData = {
     1: {
       id: 1,
       name: "Honda Civic EXL",
       year: 2020,
-      price: "R$ 89.900",
-      mileage: "45.000 km",
+      price: 89900, // Alterado para número
+      mileage: 45000, // Alterado para número
       fuel: "Flex",
       transmission: "CVT Automático",
       engine: "2.0 16V i-VTEC",
@@ -64,8 +84,8 @@ function VehicleDetail() {
       id: 2,
       name: "Toyota Corolla XEI",
       year: 2021,
-      price: "R$ 95.500",
-      mileage: "32.000 km",
+      price: 95500, // Alterado para número
+      mileage: 32000, // Alterado para número
       fuel: "Flex",
       transmission: "CVT Automático",
       engine: "2.0 16V Dual VVT-i",
@@ -102,8 +122,8 @@ function VehicleDetail() {
       id: 3,
       name: "Volkswagen Jetta Comfortline",
       year: 2019,
-      price: "R$ 78.900",
-      mileage: "58.000 km",
+      price: 78900, // Alterado para número
+      mileage: 58000, // Alterado para número
       fuel: "Flex",
       transmission: "Tiptronic Automático",
       engine: "1.4 TSI Turbo",
@@ -174,6 +194,20 @@ function VehicleDetail() {
     }
   }
 
+  // Funções para os botões de contato
+  const handleContactClick = () => {
+    const phoneNumber = '5531989693506'; // Número de WhatsApp em formato internacional
+    const message = `Olá! Tenho interesse no veículo ${vehicle.name} (${vehicle.year}). Poderíamos conversar mais sobre ele?`;
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleRequestProposal = () => {
+    const subject = encodeURIComponent(`Proposta para o veículo: ${vehicle.name} (${vehicle.year})`);
+    const body = encodeURIComponent(`Olá, gostaria de receber uma proposta para o veículo ${vehicle.name} (${vehicle.year}). Por favor, entre em contato.`);
+    window.open(`mailto:contato@linhaverde.com.br?subject=${subject}&body=${body}`, '_blank');
+  };
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -211,9 +245,13 @@ function VehicleDetail() {
               <a href="/#about" className="text-gray-700 hover:text-green-600 transition-colors">Sobre</a>
               <a href="/#contact" className="text-gray-700 hover:text-green-600 transition-colors">Contato</a>
             </nav>
-            <Button className="bg-green-600 hover:bg-green-700 text-white">
-              <Phone className="w-4 h-4 mr-2" />
-              Contato
+            {/* Botão de Contato no Header (se houver, manter como WhatsApp ou Contato geral) */}
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleContactClick} // Mantido para WhatsApp
+            >
+              <MessageCircle className="w-4 h-4 mr-2" /> {/* Ícone MessageCircle */}
+              WhatsApp
             </Button>
           </div>
         </div>
@@ -222,8 +260,8 @@ function VehicleDetail() {
       {/* Vehicle Detail Content */}
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="mb-6"
           onClick={() => navigate('/')}
         >
@@ -231,12 +269,13 @@ function VehicleDetail() {
           Voltar ao estoque
         </Button>
 
+        {/* Main Content Grid: Image (left) and all details (right, stacked) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image Gallery */}
+          {/* Coluna 1: Image Gallery */}
           <div>
             <div className="mb-4">
-              <img 
-                src={vehicle.images[currentImageIndex]} 
+              <img
+                src={vehicle.images[currentImageIndex]}
                 alt={vehicle.name}
                 className="w-full h-96 object-cover rounded-lg shadow-lg"
               />
@@ -256,15 +295,16 @@ function VehicleDetail() {
             </div>
           </div>
 
-          {/* Vehicle Info */}
-          <div>
-            <div className="mb-6">
+          {/* Coluna 2: Vehicle Info, Features, and Specifications (all stacked vertically) */}
+          <div className="flex flex-col gap-8"> {/* Flex container para empilhar os Cards */}
+            {/* Bloco de Informações Principais do Veículo */}
+            <div>
               <div className="flex items-center gap-2 mb-2">
                 <h1 className="text-3xl font-bold">{vehicle.name}</h1>
                 <Badge className="bg-green-600 text-white">{vehicle.year}</Badge>
               </div>
-              <p className="text-4xl font-bold linha-verde-green-text mb-4">{vehicle.price}</p>
-              
+              <p className="text-4xl font-bold linha-verde-green-text mb-4">{formatPrice(vehicle.price)}</p> {/* Formatado */}
+
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-gray-500" />
@@ -272,7 +312,7 @@ function VehicleDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Gauge className="w-5 h-5 text-gray-500" />
-                  <span>{vehicle.mileage}</span>
+                  <span>{formatMileage(vehicle.mileage)}</span> {/* Formatado */}
                 </div>
                 <div className="flex items-center gap-2">
                   <Fuel className="w-5 h-5 text-gray-500" />
@@ -286,64 +326,70 @@ function VehicleDetail() {
 
               <p className="text-gray-700 mb-6">{vehicle.description}</p>
 
-              <div className="flex gap-4">
-                <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white flex-1">
-                  <Phone className="w-5 h-5 mr-2" />
-                  Entrar em Contato
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  className="bg-green-600 hover:bg-green-700 text-white flex-1"
+                  onClick={handleContactClick} // Ação para WhatsApp
+                >
+                  <MessageCircle className="w-5 h-5 mr-2" /> {/* Ícone MessageCircle */}
+                  WhatsApp {/* Texto do botão alterado */}
                 </Button>
-                <Button size="lg" variant="outline" className="flex-1">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleRequestProposal} // Ação para E-mail
+                >
                   <Mail className="w-5 h-5 mr-2" />
                   Solicitar Proposta
                 </Button>
               </div>
             </div>
+
+            {/* Features (Opcionais e Equipamentos) - AGORA DENTRO DA COLUNA DA DIREITA */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  Opcionais e Equipamentos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-2">
+                  {vehicle.features.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Specifications (Especificações Técnicas) - AGORA DENTRO DA COLUNA DA DIREITA */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="w-5 h-5 text-green-600" />
+                  Especificações Técnicas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {Object.entries(vehicle.specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between border-b border-gray-100 pb-2">
+                      <span className="font-medium text-gray-700">{key}:</span>
+                      <span className="text-gray-600">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
+        </div> {/* Fim do Main Content Grid */}
 
-        {/* Specifications and Features */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
-          {/* Features */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                Opcionais e Equipamentos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-2">
-                {vehicle.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Specifications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Car className="w-5 h-5 text-green-600" />
-                Especificações Técnicas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {Object.entries(vehicle.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between border-b border-gray-100 pb-2">
-                    <span className="font-medium text-gray-700">{key}:</span>
-                    <span className="text-gray-600">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Contact Section */}
+        {/* Contact Section (bottom) - esta seção permanece como antes, abaixo do grid principal */}
         <Card className="mt-12 bg-green-50">
           <CardContent className="p-8 text-center">
             <Shield className="w-12 h-12 text-green-600 mx-auto mb-4" />
@@ -352,11 +398,11 @@ function VehicleDetail() {
               Entre em contato conosco para mais informações, agendamento de test drive ou negociação.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white">
-                <Phone className="w-5 h-5 mr-2" />
-                (11) 9999-9999
+              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white" onClick={handleContactClick}>
+                <MessageCircle className="w-5 h-5 mr-2" /> {/* Ícone MessageCircle */}
+                WhatsApp {/* Texto do botão alterado */}
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" onClick={handleRequestProposal}>
                 <Mail className="w-5 h-5 mr-2" />
                 contato@linhaverde.com.br
               </Button>
@@ -397,7 +443,7 @@ function VehicleDetail() {
             <div>
               <h5 className="text-lg font-semibold mb-4">Contato</h5>
               <ul className="space-y-2 text-gray-400">
-                <li className="flex items-center"><Phone className="w-4 h-4 mr-2" /> (11) 9999-9999</li>
+                <li className="flex items-center"><Phone className="w-4 h-4 mr-2" /> (31) 98969-3506</li> {/* Número atualizado */}
                 <li className="flex items-center"><Mail className="w-4 h-4 mr-2" /> contato@linhaverde.com.br</li>
                 <li className="flex items-center"><MapPin className="w-4 h-4 mr-2" /> São Paulo - SP</li>
               </ul>
@@ -413,4 +459,3 @@ function VehicleDetail() {
 }
 
 export default VehicleDetail
-

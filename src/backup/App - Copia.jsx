@@ -11,35 +11,11 @@ import civic2020 from './assets/civic-2020.jpg'
 import corolla2021 from './assets/corolla-2021.jpg'
 import jetta2019 from './assets/jetta-2019.jpg'
 import './App.css'
-import heroBanner from './assets/image_3a5987.jpg'; // Importação da imagem para o banner principal
-import storePhoto from './assets/image_3acadf.png'; // Importação da foto da loja para a seção "Sobre"
 
 function App() {
   const navigate = useNavigate()
   const [vehicles, setVehicles] = useState([])
-  const [loading, setLoading] = useState(true) // CORRIGIDO: Adicionado useState(true)
-
-  // Funções de formatação
-  const formatPrice = (price) => {
-    if (price === undefined || price === null) return "R$ 0,00";
-    // Tenta converter para número, se for string remove caracteres não numéricos exceto ponto para decimais
-    const numericPrice = parseFloat(String(price).replace(/[R$\s.]/g, '').replace(',', '.'));
-    if (isNaN(numericPrice)) return "R$ N/A";
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(numericPrice);
-  };
-
-  const formatMileage = (mileage) => {
-    if (mileage === undefined || mileage === null) return "0 km";
-    const numericMileage = parseFloat(String(mileage).replace(/[km\s.]/g, ''));
-    if (isNaN(numericMileage)) return "N/A km";
-    return new Intl.NumberFormat('pt-BR').format(numericMileage) + " km";
-  };
-
+  const [loading, setLoading] = useState(true)
 
   // Dados estáticos como fallback
   const fallbackVehicles = [
@@ -47,8 +23,8 @@ function App() {
       id: 1,
       name: "Honda Civic EXL",
       year: 2020,
-      price: 89900, // Alterado para número para formatação
-      mileage: 45000, // Alterado para número para formatação
+      price: "R$ 89.900",
+      mileage: "45.000 km",
       fuel: "Flex",
       images: [civic2020]
     },
@@ -56,8 +32,8 @@ function App() {
       id: 2,
       name: "Toyota Corolla XEI",
       year: 2021,
-      price: 95500, // Alterado para número para formatação
-      mileage: 32000, // Alterado para número para formatação
+      price: "R$ 95.500",
+      mileage: "32.000 km",
       fuel: "Flex",
       images: [corolla2021]
     },
@@ -65,8 +41,8 @@ function App() {
       id: 3,
       name: "Volkswagen Jetta Comfortline",
       year: 2019,
-      price: 78900, // Alterado para número para formatação
-      mileage: 58000, // Alterado para número para formatação
+      price: "R$ 78.900",
+      mileage: "58.000 km",
       fuel: "Flex",
       images: [jetta2019]
     }
@@ -108,14 +84,6 @@ function App() {
     navigate(`/vehicle/${vehicleId}`)
   }
 
-  // Função auxiliar para rolar para a seção
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const testimonials = [
     {
       name: "Maria Silva",
@@ -148,12 +116,9 @@ function App() {
               <a href="#vehicles" className="text-gray-700 hover:text-green-600 transition-colors">Veículos</a>
               <a href="#about" className="text-gray-700 hover:text-green-600 transition-colors">Sobre</a>
               <a href="#contact" className="text-gray-700 hover:text-green-600 transition-colors">Contato</a>
-              {/* REMOVIDO: <a href="/login" className="text-gray-700 hover:text-green-600 transition-colors">Admin</a> */}
+              <a href="/login" className="text-gray-700 hover:text-green-600 transition-colors">Admin</a>
             </nav>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => scrollToSection('contact')} // Botão Contato no header funcionando
-            >
+            <Button className="bg-green-600 hover:bg-green-700 text-white">
               <Phone className="w-4 h-4 mr-2" />
               Contato
             </Button>
@@ -162,36 +127,20 @@ function App() {
       </header>
 
       {/* Hero Section */}
-      <section
-        id="home"
-        className="relative text-white py-20 bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroBanner})` }}
-      >
-        {/* Overlay escuro para melhor legibilidade do texto */}
-        <div className="absolute inset-0 bg-black opacity-40 z-0"></div>
-
-        <div className="container mx-auto px-4 text-center relative z-10">
+      <section id="home" className="gradient-green-black text-white py-20">
+        <div className="container mx-auto px-4 text-center">
           <div className="fade-in">
-            {/* Ícone do carro verde removido */}
+            <img src={carIconGreen} alt="Carro Verde" className="w-20 h-20 mx-auto mb-6 opacity-80" />
             <h2 className="text-5xl font-bold mb-6">Seu Próximo Carro Está Aqui</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Na Linha Verde Automóveis, oferecemos os melhores veículos com qualidade garantida e atendimento excepcional.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-white text-green-600 hover:bg-gray-100 hover-scale"
-                onClick={() => scrollToSection('vehicles')} // Botão Ver Estoque funcionando
-              >
+              <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 hover-scale">
                 <Car className="w-5 h-5 mr-2" />
                 Ver Estoque
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-green-600 hover-scale"
-                onClick={() => scrollToSection('contact')} // Botão Falar Conosco funcionando
-              >
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 hover-scale">
                 <Phone className="w-5 h-5 mr-2" />
                 Falar Conosco
               </Button>
@@ -213,20 +162,18 @@ function App() {
             {vehicles.map((vehicle, index) => (
               <Card key={vehicle.id || index} className="hover-scale cursor-pointer border-2 hover:border-green-500 transition-all duration-300" onClick={() => handleVehicleClick(vehicle.id)}>
                 <div className="relative">
-                  <img
-                    src={vehicle.images && vehicle.images[0] ? vehicle.images[0] : vehicle.image}
-                    alt={vehicle.name}
-                    className="w-full h-48 object-cover rounded-t-lg"
+                  <img 
+                    src={vehicle.images && vehicle.images[0] ? vehicle.images[0] : vehicle.image} 
+                    alt={vehicle.name} 
+                    className="w-full h-48 object-cover rounded-t-lg" 
                   />
                   <Badge className="absolute top-4 right-4 bg-green-600 text-white">{vehicle.year}</Badge>
                 </div>
                 <CardHeader>
                   <CardTitle className="text-xl">{vehicle.name}</CardTitle>
                   <div className="flex justify-between items-center">
-                    {/* Aplica a função de formatação aqui */}
-                    <span className="text-2xl font-bold linha-verde-green-text">{formatPrice(vehicle.price)}</span>
-                    {/* Aplica a função de formatação aqui */}
-                    <span className="text-gray-600">{formatMileage(vehicle.mileage)}</span>
+                    <span className="text-2xl font-bold linha-verde-green-text">{vehicle.price}</span>
+                    <span className="text-gray-600">{vehicle.mileage}</span>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -255,7 +202,7 @@ function App() {
               </p>
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold linha-verde-green-text">{formatMileage(500).replace(' km', '+')}</div> {/* Formata 500+ */}
+                  <div className="text-3xl font-bold linha-verde-green-text">500+</div>
                   <div className="text-gray-600">Carros Vendidos</div>
                 </div>
                 <div className="text-center">
@@ -265,10 +212,8 @@ function App() {
               </div>
             </div>
             <div className="relative">
-              {/* Imagem da loja substituindo o logo antigo com overlay verde */}
-              <img src={storePhoto} alt="Fachada da Linha Verde Automóveis" className="w-full rounded-lg shadow-lg object-cover h-96" />
-              {/* Opcional: Manter ou ajustar o overlay se a foto da loja precisar de escurecimento */}
-              <div className="absolute inset-0 bg-black opacity-20 rounded-lg"></div>
+              <img src={logo} alt="Linha Verde Automóveis" className="w-full rounded-lg shadow-lg" />
+              <div className="absolute inset-0 bg-green-600 bg-opacity-20 rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -312,7 +257,7 @@ function App() {
                 <Phone className="w-8 h-8" />
               </div>
               <h4 className="text-xl font-semibold mb-2">Telefone</h4>
-              <p className="opacity-90">(31) 98969-3506</p>
+              <p className="opacity-90">(11) 9999-9999</p>
             </div>
             <div className="text-center">
               <div className="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -326,15 +271,11 @@ function App() {
                 <MapPin className="w-8 h-8" />
               </div>
               <h4 className="text-xl font-semibold mb-2">Endereço</h4>
-              <p className="opacity-90">Av. Cristiano Machado,2650, bairro Cidade Nova -BH</p>
+              <p className="opacity-90">Rua das Flores, 123<br />São Paulo - SP</p>
             </div>
           </div>
           <div className="text-center mt-12">
-            <Button
-              size="lg"
-              className="bg-white text-green-600 hover:bg-gray-100 hover-scale"
-              onClick={() => scrollToSection('contact')} // Botão Fale Conosco Agora funcionando
-            >
+            <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 hover-scale">
               <Phone className="w-5 h-5 mr-2" />
               Fale Conosco Agora
             </Button>
@@ -365,19 +306,18 @@ function App() {
             <div>
               <h5 className="text-lg font-semibold mb-4">Empresa</h5>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-green-400 transition-colors">Sobre Nós</a></li>             
-                
-                {/* ADICIONADO: Link para Área Administrativa no rodapé */}
-                <li><a href="/login" className="hover:text-green-400 transition-colors">Área Administrativa</a></li>
+                <li><a href="#" className="hover:text-green-400 transition-colors">Sobre Nós</a></li>
+                <li><a href="#" className="hover:text-green-400 transition-colors">Nossa Equipe</a></li>
+                <li><a href="#" className="hover:text-green-400 transition-colors">Carreiras</a></li>
+                <li><a href="#" className="hover:text-green-400 transition-colors">Blog</a></li>
               </ul>
             </div>
             <div>
-              {/* CORRIGIDO: Fechamento das aspas duplas na className */}
               <h5 className="text-lg font-semibold mb-4">Contato</h5>
               <ul className="space-y-2 text-gray-400">
-                <li className="flex items-center"><Phone className="w-4 h-4 mr-2" /> () 98969-3506</li>
+                <li className="flex items-center"><Phone className="w-4 h-4 mr-2" /> (11) 9999-9999</li>
                 <li className="flex items-center"><Mail className="w-4 h-4 mr-2" /> contato@linhaverde.com.br</li>
-                <li className="flex items-center"><MapPin className="w-4 h-4 mr-2" /> Av. Cristiano Machado,2650, bairro Cidade Nova -BH</li>
+                <li className="flex items-center"><MapPin className="w-4 h-4 mr-2" /> São Paulo - SP</li>
               </ul>
             </div>
           </div>
@@ -391,3 +331,4 @@ function App() {
 }
 
 export default App
+
